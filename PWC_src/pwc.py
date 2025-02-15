@@ -15,11 +15,11 @@ from .correlation_package import correlation
 
 
 class Extractor(nn.Module):
-    def __init__(self):
+    def __init__(self, in_channel=3):
         super(Extractor, self).__init__()
 
         self.moduleOne = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(in_channels=in_channel, out_channels=16, kernel_size=3, stride=2, padding=1),
             nn.LeakyReLU(inplace=False, negative_slope=0.1),
             nn.Conv2d(in_channels=16, out_channels=16, kernel_size=3, stride=1, padding=1),
             nn.LeakyReLU(inplace=False, negative_slope=0.1),
@@ -205,18 +205,16 @@ class Refiner(nn.Module):
 
 
 class PWC_Net(nn.Module):
-    def __init__(self, model_path=None):
+    def __init__(self, in_channel, model_path=None):
         super(PWC_Net, self).__init__()
-        self.model_path = model_path
-
-        self.moduleExtractor = Extractor()
+        self.moduleExtractor = Extractor(in_channel)
         self.moduleTwo = Decoder(2)
         self.moduleThr = Decoder(3)
         self.moduleFou = Decoder(4)
         self.moduleFiv = Decoder(5)
         self.moduleSix = Decoder(6)
         self.moduleRefiner = Refiner()
-        self.load_state_dict(torch.load(self.model_path))
+
 
     def forward(self, tensorFirst, tensorSecond):
         tensorFirst = self.moduleExtractor(tensorFirst)
